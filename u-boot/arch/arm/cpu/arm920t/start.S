@@ -57,6 +57,35 @@ _fiq:			.word fiq
 	.balignl 16,0xdeadbeef
 
 
+
+#define GPBCON    0x56000010  //Port B control
+#define GPBDAT    0x56000014  //Port B data
+#define GPBUP     0x56000018  //Pull-up control B
+.macro RAW_LED_MACRO x
+	ldr     r0,=GPBDAT
+	ldr     r1,[r0]
+	bic     r1,r1,#(0xf<<5)
+	orr     r1,r1,#((0xf & ~(\x))<<5)
+	str     r1, [r0]
+.endm
+
+
+// Configure GPF[4:7] as Output & pull-up turned off
+.macro RAW_LED_PORT_INIT_MACRO
+	ldr     r0,=GPBUP
+	ldr     r1,[r0]
+	orr     r1,r1,#((1<<7)|(1<<6)|(1<<5)|(1<<8))
+	str     r1,[r0]
+
+	RAW_LED_MACRO 0
+
+	ldr     r0,=GPBCON
+	ldr     r1,[r0]
+	orr     r1,r1,#((1<<14)|(1<<12)|(1<<10)|(1<<16))
+	str     r1,[r0]
+.endm
+
+
 /*
  *************************************************************************
  *
@@ -117,6 +146,9 @@ start_code:
 	bl	coloured_LED_init
 	bl	red_LED_on
 
+
+RAW_LED_PORT_INIT_MACRO
+
 #if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK)
 	/*
 	 * relocate exception table
@@ -130,6 +162,9 @@ copyex:
 	str	r3, [r1], #4
 	bne	copyex
 #endif
+
+RAW_LED_MACRO 1
+
 
 #ifdef CONFIG_S3C24X0
 	/* turn off the watchdog */
@@ -149,6 +184,9 @@ copyex:
 	mov	r1, #0x0
 	str	r1, [r0]
 
+
+RAW_LED_MACRO 2
+
 	/*
 	 * mask all IRQs by setting all bits in the INTMR - default
 	 */
@@ -165,6 +203,9 @@ copyex:
     ldr  r0, =INTSUBMSK
     str  r1, [r0]
 # endif
+
+
+RAW_LED_MACRO 3
 
 	/* FCLK:HCLK:PCLK = 1:4:8 */
 	/* default FCLK is 400 MHz ! */

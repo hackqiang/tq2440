@@ -97,7 +97,7 @@ static struct s3c2410_uartcfg smdk2440_uartcfgs[] __initdata = {
 		.hwport	     = 2,
 		.flags	     = 0,
 		.ucon	     = 0x3c5,
-		.ulcon	     = 0x43,
+		.ulcon	     = 0x03,
 		.ufcon	     = 0x51,
 	}
 };
@@ -160,7 +160,7 @@ static struct platform_device *smdk2440_devices[] __initdata = {
 static void __init smdk2440_map_io(void)
 {
 	s3c24xx_init_io(smdk2440_iodesc, ARRAY_SIZE(smdk2440_iodesc));
-	s3c24xx_init_clocks(16934400);
+	s3c24xx_init_clocks(12000000);
 	s3c24xx_init_uarts(smdk2440_uartcfgs, ARRAY_SIZE(smdk2440_uartcfgs));
 }
 
